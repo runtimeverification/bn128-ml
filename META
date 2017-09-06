@@ -1,0 +1,5 @@
+version = "0.1.0"
+description = "BN128 elliptic curve library in OCAML"
+requires = "zarith"
+archive(native) = "bn128.cmxa"
+archive(byte) = "bn128.cma"

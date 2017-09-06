@@ -1,0 +1,22 @@
+opam-version: "1.2"
+name: "bn128"
+version: "0.1.0"
+maintainer: "Dwight Guth <dwight.guth@runtimeverification.com>"
+authors: [
+  "Dwight Guth <dwight.guth@runtimeverification.com>"
+]
+
+homepage: "https://github.com/runtimeverification/bn128-ml"
+bug-reports: "https://github.com/runtimeverification/bn128-ml/issues"
+license: "UIUC"
+dev-repo: "git+https://github.com/runtimeverification/bn128-ml"
+build: [
+  [make]
+]
+install: [make "install"]
+remove: ["ocamlfind" "remove" "bn128"]
+
+depends: [
+  "ocamlfind"
+  "zarith"
+]
