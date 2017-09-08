@@ -5,9 +5,9 @@ let inv a n =
   let lm, hm = ref Z.one, ref Z.zero in
   let low, high = ref (Z.erem a n), ref n in
   while Z.gt !low Z.one do
-    let r = Z.ediv !high !low in
+    let r = Z.div !high !low in
     let nm, _new = Z.sub !hm (Z.mul !lm r), Z.sub !high (Z.mul !low r) in
-    lm := nm; low := _new; hm := !lm; high := !low
+    hm := !lm; high := !low; lm := nm; low := _new
   done;
   Z.erem !lm n
 
@@ -43,13 +43,11 @@ module FQ = struct
 end
 
 let deg p =
-  let p = Array.to_list p in
-  let rp = List.rev p in
-  let rec deg' = function
-| _, 0 -> 0
-| z :: tl, d when z = Z.zero -> deg' (tl, (d-1))
-| _, d -> d
-  in deg' (rp, ((List.length p) - 1))
+  let d = ref ((Array.length p) - 1) in
+  while ((Array.get p !d) = Z.zero) && !d <> 0 do
+   d := !d - 1
+  done;
+  !d
 
 let poly_rounded_div a b =
   let dega = deg a in
@@ -57,12 +55,12 @@ let poly_rounded_div a b =
   let temp = Array.copy a in
   let o = Array.make (Array.length a) Z.zero in
   for i = dega - degb downto 0 do
-    Array.set o i (Z.add (Array.get o i) (Z.div (Array.get temp (degb + i)) (Array.get b degb)));
+    Array.set o i (Z.add (Array.get o i) (Z.mul (Array.get temp (degb + i)) (inv (Array.get b degb) field_modulus)));
     for c = 0 to degb do
       Array.set temp (c + i) (Z.sub (Array.get temp (c + i)) (Array.get o c))
     done
   done;
-  Array.init ((deg o) + 1) (Array.get o)
+  Array.init ((deg o) + 1) (fun i -> Z.erem (Array.get o i) field_modulus)
 
 module FQP = struct
   type t = (FQ.t array * Z.t array * int)

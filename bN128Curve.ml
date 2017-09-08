@@ -13,12 +13,12 @@ let is_on_curve sub pow b pt = match pt with
 | Infinite -> true
 | Finite (x, y) -> (sub (pow y two) (pow x three)) = b
 
-let double (add: 'a -> 'a -> 'a) (div: 'a -> 'a -> 'a) (mul: 'a -> FQ.t -> 'a) (mulp: 'a -> 'a -> 'a) (pow: 'a -> Z.t -> 'a) (sub: 'a -> 'a -> 'a) (p: 'a point) : 'a point = match p with
-| Infinite -> invalid_arg "infinite point"
+let double add div mul mulp pow sub neg p = match p with
+| Infinite -> Infinite
 | Finite (x, y) -> 
     let l = div (mul (pow x two) (FQ.create three)) (mul y (FQ.create two)) in
     let newx = sub (pow l two) (mul x (FQ.create two)) in
-    let newy = sub (add (mulp l newx) (mulp l x)) y in
+    let newy = sub (add (mulp (neg l) newx) (mulp l x)) y in
     Finite (newx, newy)
 
 let add add div mul mulp pow sub neg p1 p2 = match p1, p2 with
@@ -26,7 +26,7 @@ let add add div mul mulp pow sub neg p1 p2 = match p1, p2 with
 | Finite (x1,x2), Infinite -> Finite (x1,x2)
 | Infinite, Infinite -> Infinite
 | Finite (x1, y1), Finite (x2, y2) ->
-    if x1 = x2 && y1 = y2 then double add div mul mulp pow sub p1 else
+    if x1 = x2 && y1 = y2 then double add div mul mulp pow sub neg p1 else
     if x1 = x2 then Infinite else
     let l = div (sub y2 y1) (sub x2 x1) in
     let newx = sub (sub (pow l two) x1) x2 in
@@ -54,7 +54,7 @@ module G1 : G with type t = FQ.t = struct
   let b = FQ.create three
   let g = Finite (FQ.one, FQ.create two)
   let is_on_curve = is_on_curve FQ.sub FQ.pow b
-  let double = double FQ.add FQ.div FQ.mul FQ.mul FQ.pow FQ.sub
+  let double = double FQ.add FQ.div FQ.mul FQ.mul FQ.pow FQ.sub FQ.neg
   let add = add FQ.add FQ.div FQ.mul FQ.mul FQ.pow FQ.sub FQ.neg
   let mul = mul add double
 end
@@ -69,7 +69,7 @@ module G2 : G with type t = FQP.t = struct
     [|Z.of_string "8495653923123431417604973247489272438418190587263600148770280649306958101930";
       Z.of_string "4082367875863433681332203403145435568316851327593401208105741076214120093531"|])
   let is_on_curve = is_on_curve FQP.sub FQP.pow b
-  let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub
+  let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let add = add FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let mul = mul add double
 end
@@ -102,7 +102,7 @@ module G12 : G with type t = FQP.t = struct
   let b = FQP.create_fq12 [|three; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero|]
   let g = cast_g2 G2.g
   let is_on_curve = is_on_curve FQP.sub FQP.pow b
-  let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub
+  let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let add = add FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let mul = mul add double
 end
