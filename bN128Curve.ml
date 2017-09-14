@@ -39,6 +39,10 @@ let rec mul add double pt n =
   if (Z.erem n two) = Z.zero then mul add double (double pt) (Z.div n two) else
   add (mul add double (double pt) (Z.div n two)) pt
 
+let neg neg pt = match pt with
+| Infinite -> Infinite
+| Finite (x, y) -> Finite (x, neg y)
+
 module type G = sig
   type t
   val b : t
@@ -47,6 +51,7 @@ module type G = sig
   val double : t point -> t point
   val add : t point -> t point -> t point
   val mul : t point -> Z.t -> t point
+  val neg : t point -> t point
 end
 
 module G1 : G with type t = FQ.t = struct
@@ -57,6 +62,7 @@ module G1 : G with type t = FQ.t = struct
   let double = double FQ.add FQ.div FQ.mul FQ.mul FQ.pow FQ.sub FQ.neg
   let add = add FQ.add FQ.div FQ.mul FQ.mul FQ.pow FQ.sub FQ.neg
   let mul = mul add double
+  let neg = neg FQ.neg
 end
 
 module G2 : G with type t = FQP.t = struct
@@ -72,6 +78,7 @@ module G2 : G with type t = FQP.t = struct
   let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let add = add FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let mul = mul add double
+  let neg = neg FQP.neg
 end
 
 let w = FQP.create_fq12 [|Z.zero; Z.one; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero; Z.zero|]
@@ -105,4 +112,5 @@ module G12 : G with type t = FQP.t = struct
   let double = double FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let add = add FQP.add FQP.divp FQP.mul FQP.mulp FQP.pow FQP.sub FQP.neg
   let mul = mul add double
+  let neg = neg FQP.neg
 end

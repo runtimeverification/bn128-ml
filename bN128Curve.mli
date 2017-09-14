@@ -12,6 +12,7 @@ module type G = sig
   val double : t point -> t point
   val add : t point -> t point -> t point
   val mul : t point -> Z.t -> t point
+  val neg : t point -> t point
 end
 
 module G1 : G with type t = FQ.t
