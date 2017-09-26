@@ -1,6 +1,6 @@
 opam-version: "1.2"
 name: "bn128"
-version: "0.1.1"
+version: "0.1.2"
 maintainer: "Dwight Guth <dwight.guth@runtimeverification.com>"
 authors: [
   "Dwight Guth <dwight.guth@runtimeverification.com>"
@@ -9,7 +9,7 @@ authors: [
 homepage: "https://github.com/runtimeverification/bn128-ml"
 bug-reports: "https://github.com/runtimeverification/bn128-ml/issues"
 license: "UIUC"
-dev-repo: "git+https://github.com/runtimeverification/bn128-ml"
+dev-repo: "https://github.com/runtimeverification/bn128-ml.git"
 build: [
   [make]
 ]
