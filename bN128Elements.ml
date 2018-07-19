@@ -84,10 +84,10 @@ module FQP = struct
   (fqs, m, d) -> (Array.map (fun c -> FQ.mul c fq) fqs, m, d)
 
   let mulp' p1 p2 d mod_coeffs = 
-    let b = Array.make (d * 2 - 1) FQ.zero in
+    let b = Array.make (d * 2 - 1) Z.zero in
     for i = 0 to d - 1 do
       for j = 0 to d - 1 do
-        Array.set b (i + j) (FQ.add (Array.get b (i + j)) (FQ.mul (Array.get p1 i) (Array.get p2 j)))
+        Array.set b (i + j) (Z.add (Array.get b (i + j)) (Z.mul (Array.get p1 i) (Array.get p2 j)))
       done
     done;
     let b = ref b in
@@ -95,10 +95,10 @@ module FQP = struct
       let exp, top = Array.length !b - d - 1, Array.get !b ((Array.length !b) - 1) in
       b := Array.init ((Array.length !b) - 1) (Array.get !b);
       for i = 0 to d - 1 do
-        Array.set !b (exp + i) (FQ.sub (Array.get !b (exp + i)) (FQ.mul top (FQ.create (Array.get mod_coeffs i))))
+        Array.set !b (exp + i) (Z.sub (Array.get !b (exp + i)) (Z.mul top (Array.get mod_coeffs i)))
       done
     done;
-    !b
+    Array.map FQ.create !b
 
   let mulp p1 p2 = combine p1 p2 (mulp' (coeffs p1) (coeffs p2) (degree p1) (mul_coeffs p1))
 
@@ -116,8 +116,8 @@ module FQP = struct
   match p with (_, mod_coeffs, _) ->
   if z = Z.zero then one mod_coeffs else
   if z = Z.one then p else
-  if (Z.erem z (Z.of_int 2)) = Z.zero then pow (mulp p p) (Z.div z (Z.of_int 2)) else
-  mulp (pow (mulp p p) (Z.div z two)) p
+  if (Z.logand z Z.one) = Z.zero then pow (mulp p p) (Z.shift_right z 1) else
+  mulp (pow (mulp p p) (Z.shift_right z 1)) p
 
   let neg p = match p with
   (fqs, m, d) -> (Array.map FQ.neg fqs, m, d)
