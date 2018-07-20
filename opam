@@ -17,7 +17,7 @@ install: [make "install"]
 remove: ["ocamlfind" "remove" "bn128"]
 
 depends: [
-  "ocamlfind"
+  "ocamlfind" {build}
   "zarith"
 ]
 
